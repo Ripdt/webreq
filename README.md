@@ -21,8 +21,12 @@ Hate. Hate is the inspiration. I was tired of using complicated GUI interfaces w
 Requires GCC. On Windows, `ws2_32` is linked automatically.
 
 ```bash
-make build      # Debug build (default)
-make release    # Optimized release build
+make build        # Debug build (default)
+make debug        # Debug build (same as build)
+make release      # Optimized release build
+make lib_debug    # Build only the shared library (debug)
+make lib_release  # Build only the shared library (release)
+make clean        # Remove all compiled files
 ```
 
 The Makefile auto-detects your OS and outputs to the correct directory:
@@ -62,13 +66,21 @@ If options are not provided via command-line flags, the tool will prompt you int
 **Simple GET request:**
 
 ```bash
+# Windows
 ./bin/debug/windows/req.exe -H example.com -p 80 -P / -M GET -m ""
+
+# Linux
+./bin/debug/linux/req -H example.com -p 80 -P / -M GET -m ""
 ```
 
 **POST request with a body:**
 
 ```bash
+# Windows
 ./bin/debug/windows/req.exe -H example.com -p 80 -P /api/submit -M POST -m '{"key":"value"}'
+
+# Linux
+./bin/debug/linux/req -H example.com -p 80 -P /api/submit -M POST -m '{"key":"value"}'
 ```
 
 **Interactive mode** (just run without arguments):
