@@ -28,7 +28,7 @@ int get_args(int argc, char *argv[], int *port, char **host, char **path, char *
             printf("  -M, --method METHOD Specify the request method (GET/POST)\n");
             return 0;
         }
-        printf("Processing argument: %s\n", arg);
+        
         if (strcmp(arg, "-p") == 0 || strcmp(arg, "--port") == 0) {
             *port = atoi(argv[++i]);
         }
