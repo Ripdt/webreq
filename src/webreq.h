@@ -16,7 +16,7 @@ typedef struct {
 } WebReq_Params;
 
 #if defined(_WIN32) || defined(_WIN64)
-WEBREQ_FUNC int webreq_init();
+WEBREQ_FUNC void webreq_init();
 #endif
 
 WEBREQ_FUNC int webreq_make(WebReq_Params* params);

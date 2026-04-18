@@ -28,8 +28,8 @@ DEBUG_DIR = ./bin/debug/$(PLATFORM)
 RELEASE_DIR = ./bin/release/$(PLATFORM)
 
 lib_debug: $(DEBUG_DIR)
-	$(CC) $(CFLAGS_DEBUG) $(CFLAGS_COMPILE) -fPIC $(SRC_LIB) -o $(DEBUG_DIR)/webreq.o
-	$(CC) -shared -o $(DEBUG_DIR)/libwebreq$(LIB_EXT) $(DEBUG_DIR)/webreq.o
+	$(CC) $(CFLAGS_DEBUG) $(CFLAGS_COMPILE) -fPIC $(SRC_LIB) -o $(DEBUG_DIR)/webreq.o	
+	$(CC) -shared -o $(DEBUG_DIR)/libwebreq$(LIB_EXT) $(DEBUG_DIR)/webreq.o $(LIBS)
 
 debug: lib_debug
 	$(CC) $(CFLAGS_DEBUG) $(CFLAGS_COMPILE) -I$(SRC_DIR) $(SRC) -o $(DEBUG_DIR)/req.o $(LIBS)
@@ -37,7 +37,7 @@ debug: lib_debug
 
 lib_release: $(RELEASE_DIR)
 	$(CC) $(CFLAGS_RELEASE) $(CFLAGS_COMPILE) -fPIC $(SRC_LIB) -o $(RELEASE_DIR)/webreq.o
-	$(CC) -shared -o $(RELEASE_DIR)/libwebreq$(LIB_EXT) $(RELEASE_DIR)/webreq.o
+	$(CC) -shared -o $(RELEASE_DIR)/libwebreq$(LIB_EXT) $(RELEASE_DIR)/webreq.o $(LIBS)
 
 release: lib_release
 	$(CC) $(CFLAGS_RELEASE) $(CFLAGS_COMPILE) -I$(SRC_DIR) $(SRC) -o $(RELEASE_DIR)/req.o $(LIBS)

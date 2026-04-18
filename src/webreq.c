@@ -20,7 +20,7 @@
 void error(const char *msg) { perror(msg); exit(0); }
 
 #if defined(_WIN32) || defined(_WIN64)
-int webreq_init() 
+void webreq_init() 
 {
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
@@ -54,12 +54,11 @@ void format_path(char **path) {
 
 int webreq_make(WebReq_Params* params)
 {
-#if defined(_WIN32) || defined(_WIN64)
-    struct hostent *server;
-    struct sockaddr_in serv_addr;
     int sockfd, bytes, sent, received, total;
     char response[4096];
     char request[4096];
+    char port_str[6] = {0};
+    const char *port = NULL;
 
     format_host(&params->host);
     format_path(&params->path);
@@ -72,15 +71,27 @@ int webreq_make(WebReq_Params* params)
                 params->method, params->path, params->host);
     }
     
+    if (params->port < 0 || params->port > 65535)
+        error("ERROR invalid port number");
+
+    if (params->port == 0) params->port = 80;
+
+    snprintf(port_str, sizeof(port_str), "%d", params->port);
+    port = port_str;
+
     printf("===================\n");
     printf("Request\n");
     printf("===================\n");
     printf("%s\n", request);
 
-    printf("Connecting to %s:%d...\n", params->host, params->port);
+    printf("Connecting to %s:%s...\n", params->host, port);
 
     sockfd = socket(DOMAIN, COMMUNICATION_TYPE, PROTOCOL);
     if (sockfd < 0) error("ERROR opening socket");
+    
+#if defined(_WIN32) || defined(_WIN64)
+    struct hostent *server;
+    struct sockaddr_in serv_addr;
 
     server = gethostbyname(params->host);
 
@@ -89,7 +100,9 @@ int webreq_make(WebReq_Params* params)
     memset(&serv_addr,0,sizeof(serv_addr));
     serv_addr.sin_family = DOMAIN;
     serv_addr.sin_port = htons(params->port);
-    memcpy(&serv_addr.sin_addr.s_addr,server->h_addr,server->h_length);    if (connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0)
+    memcpy(&serv_addr.sin_addr.s_addr,server->h_addr,server->h_length);
+    
+    if (connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0)
         error("ERROR connecting");
 
     printf("Sending request...\n");
@@ -175,39 +188,6 @@ int webreq_make(WebReq_Params* params)
     return 1;
 #else
     struct addrinfo hints, *res;
-    char port_str[6] = {0};
-    const char *port = NULL;
-    int sockfd, bytes, sent, received, total;
-    char response[4096];
-    char request[4096];
-
-    format_host(&params->host);
-    format_path(&params->path);
-
-    if (params->message != NULL && strlen(params->message) > 0) {
-        sprintf(request, "%s %s HTTP/1.0\r\nHost: %s\r\nContent-Length: %d\r\n\r\n%s",
-                params->method, params->path, params->host, (int)strlen(params->message), params->message);
-    } else {
-        sprintf(request, "%s %s HTTP/1.0\r\nHost: %s\r\n\r\n",
-                params->method, params->path, params->host);
-    }
-    
-    if (params->port < 0 || params->port > 65535)
-        error("ERROR invalid port number");
-
-    if (params->port != 0) {
-        snprintf(port_str, sizeof(port_str), "%d", params->port);
-        port = port_str;
-    } else {
-        port = "80";
-    }
-
-    printf("===================\n");
-    printf("Request\n");
-    printf("===================\n");
-    printf("%s\n", request);
-
-    printf("Connecting to %s:%s...\n", params->host, port);
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;     // Allow IPv4 or IPv6
